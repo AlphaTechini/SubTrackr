@@ -1,4 +1,15 @@
-import { NavigatorScreenParams } from '@react-navigation/native';
+import { NavigatorScreenParams, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BillingCycle } from '../types/subscription';
+
+/**
+ * Navigation types are intentionally explicit to avoid runtime route mismatches.
+ *
+ * Migration guide:
+ * 1. Replace untyped `useNavigation()` with `useAppNavigation<'RouteName'>()`.
+ * 2. Replace untyped `useRoute()` with `useAppRoute<'RouteName'>()`.
+ * 3. For external navigation, use the typed `navigationRef` helpers in `navigationRef.ts`.
+ */
 
 export type RootStackParamList = {
   Home: undefined;
@@ -6,6 +17,7 @@ export type RootStackParamList = {
   SubscriptionDetail: { id: string };
   EditSubscription: { id: string };
   CancellationFlow: { subscriptionId: string };
+  CancellationFunnelDashboard: undefined;
   WalletConnect: undefined;
   CryptoPayment: { subscriptionId?: string } | undefined;
   Community: undefined;
@@ -18,6 +30,7 @@ export type RootStackParamList = {
   Settings: undefined;
   CalendarIntegration: undefined;
   WebhookSettings: undefined;
+  WebhookLogs: { webhookId: string };
   AccountingExport: undefined;
   AdminDashboard: undefined;
   LanguageSettings: undefined;
@@ -32,8 +45,10 @@ export type RootStackParamList = {
   FraudDashboard: undefined;
   GroupManagement: undefined;
   TaxSettings: undefined;
+  CreditsAndPrepayments: undefined;
+  TaxCompliance: undefined;
   SupportDashboard: undefined;
-  UsageDashboard: undefined;
+  UsageDashboard: { subscriptionId?: string; planId?: string; name?: string } | undefined;
   DeveloperPortal: undefined;
   SandboxDashboard: undefined;
   ApiKeyManagement: undefined;
@@ -43,12 +58,27 @@ export type RootStackParamList = {
   AffiliateDashboard: undefined;
   LoyaltyDashboard: undefined;
   CampaignManagement: undefined;
+  PromotionManagement: undefined;
   PerformanceDashboard: undefined;
+  CustomerHealth: undefined;
   BillingSettings: undefined;
+  BillingAlignment: undefined;
   ChangePlan: { subscriptionId: string };
   PaymentMethods: undefined;
   AnalyticsDashboard: undefined;
+  TrialDetails: undefined;
+  PartnerDashboard: undefined;
   NotFound: { reason?: string };
+  // Issue #547: GDPR
+  PrivacyCenter: undefined;
+  DataExport: undefined;
+  DPALog: undefined;
+  // Issue #548: Push notifications
+  NotificationPreferences: undefined;
+  // Issue #549: Email templates
+  EmailTemplateEditor: undefined;
+  // Issue #550: Advanced dunning
+  DunningDashboard: undefined;
 };
 
 export type TabParamList = {
@@ -59,3 +89,21 @@ export type TabParamList = {
   RevenueTab: undefined;
   SettingsTab: NavigatorScreenParams<RootStackParamList> | undefined;
 };
+
+export type RootStackScreenRouteProp<RouteName extends keyof RootStackParamList> =
+  RouteProp<RootStackParamList, RouteName>;
+
+export type RootStackScreenNavigationProp<RouteName extends keyof RootStackParamList> =
+  NativeStackNavigationProp<RootStackParamList, RouteName>;
+
+export type AppTabNavigationProp<RouteName extends keyof TabParamList> =
+  NativeStackNavigationProp<TabParamList, RouteName>;
+
+export const useAppNavigation = <RouteName extends keyof RootStackParamList>() =>
+  useNavigation<RootStackScreenNavigationProp<RouteName>>();
+
+export const useAppRoute = <RouteName extends keyof RootStackParamList>() =>
+  useRoute<RootStackScreenRouteProp<RouteName>>();
+
+export const useAppTabNavigation = <RouteName extends keyof TabParamList>() =>
+  useNavigation<AppTabNavigationProp<RouteName>>();

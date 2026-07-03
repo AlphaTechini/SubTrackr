@@ -2,6 +2,9 @@
 
 use soroban_sdk::{contracttype, Address, BytesN, String, Symbol, Vec};
 
+pub mod errors;
+pub use errors::CoreError;
+
 /// Billing interval in seconds.
 #[contracttype]
 #[derive(Clone, Debug, PartialEq)]
@@ -732,6 +735,19 @@ pub enum StorageKey {
     /// Global maximum number of plans a merchant can create.
     /// Stored in instance storage; if unset, the implementation default applies.
     MaxPlansPerMerchant,
+
+    // ── Added in storage version 8 (MEV Protection) ──
+    /// Tmp charge commitment hash for a pending large charge (subscription_id -> hash)
+    TmpChargeCommitment(u64),
+    /// Admin-configurable threshold for when a commit-reveal is required.
+    LargeChargeThreshold,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, PartialEq)]
+pub struct ChargeCommitment {
+    pub hash: BytesN<32>,
+    pub committed_at: u64,
 }
 
 /// Slippage protection bounds for oracle-based pricing.
